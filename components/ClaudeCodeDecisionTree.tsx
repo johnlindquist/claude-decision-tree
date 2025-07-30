@@ -61,11 +61,11 @@ const ClaudeCodeDecisionTree = () => {
       icon: Code,
       color: 'bg-blue-500',
       description: 'Reusable prompt templates for repetitive workflows',
-      when: 'Perfect for standardized tasks with parameters',
+      when: 'Ideal for repetitive workflows that need consistent execution',
       examples: [
-        { scenario: 'Creating conventional commits', code: '/commit feat: add user authentication' },
-        { scenario: 'Scaffolding components', code: '/component UserProfile' },
-        { scenario: 'Running test suites', code: '/test:unit' }
+        { scenario: 'Code review automation', code: '/dev:code-review - Full analysis with actionable insights' },
+        { scenario: 'Test generation', code: '/test:generate-test-cases - Creates comprehensive test suites' },
+        { scenario: 'Release preparation', code: '/deploy:prepare-release - Automates changelog and versioning' }
       ],
       implementation: `# .claude/commands/my-command.md
 ---
@@ -86,9 +86,9 @@ User arguments are available in: $ARGUMENTS
       description: 'Specialized AI instances for complex domain-specific tasks',
       when: 'Best for complex analysis requiring expertise or parallel processing',
       examples: [
-        { scenario: 'Architecture analysis', code: 'Deploy architecture-analyzer agent' },
-        { scenario: 'Security auditing', code: 'Use security-expert for vulnerability scan' },
-        { scenario: 'Performance optimization', code: 'Invoke performance-engineer agent' }
+        { scenario: 'Parallel codebase exploration', code: '4 agents explore different directories simultaneously' },
+        { scenario: 'Microservices team', code: 'service-architect + security-engineer + infra-specialist' },
+        { scenario: 'Full-stack review', code: 'backend-architect + frontend-expert + database-optimizer' }
       ],
       implementation: `# .claude/agents/specialist.md
 ---
@@ -101,7 +101,9 @@ You are a specialist in [domain]. Focus on:
 - Key expertise area 1
 - Key expertise area 2
 
-# Tip: Use /agents command for interactive setup`
+# Tips: 
+# - Use /agents command for interactive setup
+# - Agents run in parallel (up to ~10 concurrent)`
     },
     'hook': {
       name: 'Hook',
@@ -110,9 +112,9 @@ You are a specialist in [domain]. Focus on:
       description: 'Automated scripts that run at specific lifecycle points',
       when: 'Ideal for enforcing rules and automated quality control',
       examples: [
-        { scenario: 'Auto-format on save', code: 'PostToolUse triggers prettier after edits' },
-        { scenario: 'Security validation', code: 'PreToolUse checks permissions before execution' },
-        { scenario: 'Context enhancement', code: 'UserPromptSubmit adds project context' }
+        { scenario: 'Language-specific formatting', code: 'PostToolUse runs black for .py, prettier for .js' },
+        { scenario: 'Dangerous command blocking', code: 'PreToolUse prevents rm -rf and chmod 777' },
+        { scenario: 'Command logging', code: 'Track all bash commands with descriptions' }
       ],
       implementation: `// .claude/settings.json
 {
@@ -135,9 +137,9 @@ You are a specialist in [domain]. Focus on:
       description: 'Model Context Protocol for external integrations',
       when: 'Required for connecting to external tools and data sources',
       examples: [
-        { scenario: 'Database queries', code: 'Connect to PostgreSQL for live data' },
-        { scenario: 'API integration', code: 'Access Jira tickets directly' },
-        { scenario: 'Tool automation', code: 'Control browser for testing' }
+        { scenario: 'PR management', code: 'GitHub MCP - fetch status, create issues, approve PRs' },
+        { scenario: 'Database operations', code: 'PostgreSQL MCP with secure connection strings' },
+        { scenario: 'Business tools', code: 'Slack, Linear, Adobe Commerce integrations' }
       ],
       implementation: `// ~/Library/Application Support/Claude/claude_desktop_config.json
 // Windows: %APPDATA%\Claude\claude_desktop_config.json
@@ -191,9 +193,9 @@ You are a specialist in [domain]. Focus on:
       description: 'Global configuration for tools, models, and environment',
       when: 'Configure system-wide behavior and restrictions',
       examples: [
-        { scenario: 'Tool restrictions', code: 'Disable WebSearch for security' },
-        { scenario: 'Model selection', code: 'Use specific Claude model' },
-        { scenario: 'Environment vars', code: 'Set API keys and configs' }
+        { scenario: 'Multi-environment config', code: 'Dev/prod settings with different endpoints' },
+        { scenario: 'Auto-approval patterns', code: 'Safe commands and test files auto-approved' },
+        { scenario: 'Project-specific MCP', code: 'Different MCP servers per project' }
       ],
       implementation: `// .claude/settings.json
 {
@@ -454,6 +456,10 @@ You are a specialist in [domain]. Focus on:
                 <li className="flex items-start">
                   <span className="mr-2">•</span>
                   <span>Share successful customizations with your team</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span>Explore built-in commands: /agents, /permissions, /vim, /status</span>
                 </li>
               </ul>
             </div>
