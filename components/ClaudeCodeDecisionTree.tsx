@@ -1,12 +1,14 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, ChevronLeft, RefreshCw, Code, Zap, Brain, Link2, FileText, Settings, CheckCircle, Info, Copy, ExternalLink } from 'lucide-react';
 
 const ClaudeCodeDecisionTree = () => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [answers, setAnswers] = useState([]);
-  const [recommendation, setRecommendation] = useState(null);
+  const [answers, setAnswers] = useState<Array<{questionId: string, value: string}>>([]);
+  const [recommendation, setRecommendation] = useState<Array<{feature: string, confidence: number, reason: string}> | null>(null);
   const [showExamples, setShowExamples] = useState(false);
-  const [copiedCode, setCopiedCode] = useState(null);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   const questions = [
     {
@@ -29,7 +31,7 @@ const ClaudeCodeDecisionTree = () => {
         { value: 'daily', label: 'Daily', description: 'Regular but not constant' },
         { value: 'weekly', label: 'Weekly or less', description: 'Occasional use' },
         { value: 'always', label: 'Always active', description: 'Continuous background operation' }
-      ]
+      ] as const
     },
     {
       id: 'complexity',
@@ -184,7 +186,7 @@ You are a specialist in...`
     const complexity = answers.find(a => a.questionId === 'complexity')?.value;
     const trigger = answers.find(a => a.questionId === 'trigger')?.value;
 
-    const recommendations = [];
+    const recommendations: Array<{feature: string, confidence: number, reason: string}> = [];
 
     // Primary recommendation based on task type
     if (taskType === 'repetitive') {
@@ -220,7 +222,7 @@ You are a specialist in...`
     return recommendations;
   };
 
-  const handleAnswer = (questionId, value) => {
+  const handleAnswer = (questionId: string, value: string) => {
     const newAnswers = [...answers.filter(a => a.questionId !== questionId), { questionId, value }];
     setAnswers(newAnswers);
 
@@ -247,7 +249,7 @@ You are a specialist in...`
     setShowExamples(false);
   };
 
-  const copyToClipboard = (code, id) => {
+  const copyToClipboard = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(id);
     setTimeout(() => setCopiedCode(null), 2000);
@@ -258,27 +260,27 @@ You are a specialist in...`
       const recs = getRecommendation();
       setRecommendation(recs);
     }
-  }, [answers]);
+  }, [answers, recommendation]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8 pt-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Claude Code Decision Tree</h1>
-          <p className="text-lg text-gray-600">Find the right customization feature for your needs</p>
+          <h1 className="text-4xl font-bold text-gray-100 mb-2">Claude Code Decision Tree</h1>
+          <p className="text-lg text-gray-400">Find the right customization feature for your needs</p>
         </div>
 
         {/* Progress Bar */}
         {!recommendation && (
           <div className="mb-8">
-            <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
               <div 
                 className="h-full bg-blue-500 transition-all duration-300"
                 style={{ width: `${((currentStep + 1) / questions.length) * 100}%` }}
               />
             </div>
-            <p className="text-sm text-gray-500 mt-2 text-center">
+            <p className="text-sm text-gray-400 mt-2 text-center">
               Step {currentStep + 1} of {questions.length}
             </p>
           </div>
@@ -286,28 +288,28 @@ You are a specialist in...`
 
         {/* Question Card */}
         {!recommendation ? (
-          <div className="bg-white rounded-xl shadow-lg p-8 animate-fadeIn">
+          <div className="bg-gray-800 rounded-xl shadow-lg p-8 animate-fadeIn">
             <h2 className="text-2xl font-semibold mb-6">{questions[currentStep].question}</h2>
             
             <div className="space-y-3">
               {questions[currentStep].options.map((option) => {
-                const Icon = option.icon;
+                const Icon = 'icon' in option ? option.icon : null;
                 return (
                   <button
                     key={option.value}
                     onClick={() => handleAnswer(questions[currentStep].id, option.value)}
-                    className="w-full text-left p-4 rounded-lg border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all group"
+                    className="w-full text-left p-4 rounded-lg border-2 border-gray-600 hover:border-blue-500 hover:bg-gray-700 transition-all group"
                   >
                     <div className="flex items-start">
                       {Icon && (
-                        <Icon className="w-6 h-6 text-gray-400 group-hover:text-blue-500 mr-3 mt-0.5" />
+                        <Icon className="w-6 h-6 text-gray-500 group-hover:text-blue-400 mr-3 mt-0.5" />
                       )}
                       <div>
-                        <div className="font-medium text-gray-900 group-hover:text-blue-700">
+                        <div className="font-medium text-gray-100 group-hover:text-blue-400">
                           {option.label}
                         </div>
                         {option.description && (
-                          <div className="text-sm text-gray-500 mt-1">{option.description}</div>
+                          <div className="text-sm text-gray-400 mt-1">{option.description}</div>
                         )}
                       </div>
                     </div>
@@ -319,7 +321,7 @@ You are a specialist in...`
             {currentStep > 0 && (
               <button
                 onClick={handleBack}
-                className="mt-6 flex items-center text-gray-600 hover:text-gray-900"
+                className="mt-6 flex items-center text-gray-400 hover:text-gray-200"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" />
                 Back
@@ -329,18 +331,18 @@ You are a specialist in...`
         ) : (
           /* Recommendation Card */
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-white rounded-xl shadow-lg p-8">
+            <div className="bg-gray-800 rounded-xl shadow-lg p-8">
               <h2 className="text-2xl font-semibold mb-6 flex items-center">
                 <CheckCircle className="w-8 h-8 text-green-500 mr-3" />
                 Recommended Features
               </h2>
               
               {recommendation.map((rec, index) => {
-                const feature = features[rec.feature];
+                const feature = features[rec.feature as keyof typeof features];
                 const Icon = feature.icon;
                 
                 return (
-                  <div key={rec.feature} className={`${index > 0 ? 'mt-6 pt-6 border-t' : ''}`}>
+                  <div key={rec.feature} className={`${index > 0 ? 'mt-6 pt-6 border-t border-gray-700' : ''}`}>
                     <div className="flex items-start">
                       <div className={`${feature.color} p-3 rounded-lg`}>
                         <Icon className="w-6 h-6 text-white" />
@@ -348,23 +350,23 @@ You are a specialist in...`
                       <div className="ml-4 flex-1">
                         <div className="flex items-center">
                           <h3 className="text-xl font-semibold">{feature.name}</h3>
-                          <span className="ml-3 px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
+                          <span className="ml-3 px-3 py-1 bg-green-900/30 text-green-400 text-sm rounded-full">
                             {rec.confidence}% match
                           </span>
                         </div>
-                        <p className="text-gray-600 mt-1">{feature.description}</p>
-                        <p className="text-sm text-gray-500 mt-2">
+                        <p className="text-gray-300 mt-1">{feature.description}</p>
+                        <p className="text-sm text-gray-400 mt-2">
                           <strong>Why:</strong> {rec.reason}
                         </p>
                         
                         {/* Examples */}
                         <div className="mt-4">
-                          <h4 className="font-medium text-gray-700 mb-2">Common Use Cases:</h4>
+                          <h4 className="font-medium text-gray-200 mb-2">Common Use Cases:</h4>
                           <div className="space-y-2">
                             {feature.examples.map((example, i) => (
                               <div key={i} className="flex items-center text-sm">
-                                <div className="w-2 h-2 bg-gray-300 rounded-full mr-2" />
-                                <span className="text-gray-600">{example.scenario}</span>
+                                <div className="w-2 h-2 bg-gray-500 rounded-full mr-2" />
+                                <span className="text-gray-300">{example.scenario}</span>
                               </div>
                             ))}
                           </div>
@@ -372,7 +374,7 @@ You are a specialist in...`
 
                         {/* Implementation */}
                         <div className="mt-4">
-                          <h4 className="font-medium text-gray-700 mb-2">Quick Start:</h4>
+                          <h4 className="font-medium text-gray-200 mb-2">Quick Start:</h4>
                           <div className="relative">
                             <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
                               <code>{feature.implementation}</code>
@@ -398,12 +400,12 @@ You are a specialist in...`
             </div>
 
             {/* Additional Resources */}
-            <div className="bg-blue-50 rounded-xl p-6">
-              <h3 className="font-semibold text-blue-900 mb-3 flex items-center">
+            <div className="bg-blue-900/20 rounded-xl p-6">
+              <h3 className="font-semibold text-blue-300 mb-3 flex items-center">
                 <Info className="w-5 h-5 mr-2" />
                 Next Steps
               </h3>
-              <ul className="space-y-2 text-blue-800">
+              <ul className="space-y-2 text-blue-200">
                 <li className="flex items-start">
                   <span className="mr-2">•</span>
                   <span>Create the appropriate configuration files in your project</span>
@@ -425,7 +427,7 @@ You are a specialist in...`
 
             <button
               onClick={handleRestart}
-              className="w-full py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center"
+              className="w-full py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center justify-center"
             >
               <RefreshCw className="w-5 h-5 mr-2" />
               Start Over
@@ -434,27 +436,10 @@ You are a specialist in...`
         )}
 
         {/* Footer */}
-        <div className="mt-12 text-center text-sm text-gray-500">
+        <div className="mt-12 text-center text-sm text-gray-400">
           <p>Based on Claude Code documentation and best practices</p>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-      `}</style>
     </div>
   );
 };
