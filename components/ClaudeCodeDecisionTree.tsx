@@ -65,14 +65,19 @@ const ClaudeCodeDecisionTree = () => {
       examples: [
         { scenario: 'Creating conventional commits', code: '/commit feat: add user authentication' },
         { scenario: 'Scaffolding components', code: '/component UserProfile' },
-        { scenario: 'Running test suites', code: '/test unit' }
+        { scenario: 'Running test suites', code: '/test:unit' }
       ],
       implementation: `# .claude/commands/my-command.md
 ---
-description: Description of your command
-argument-hint: <parameter>
+argument-hint: "<type>: <description>"
 ---
-Task instructions using $ARGUMENTS placeholder`
+
+Your command content here.
+User arguments are available in: $ARGUMENTS
+
+# Namespacing example:
+# .claude/commands/frontend/component.md
+# Usage: /frontend:component Button`
     },
     'subagent': {
       name: 'Subagent',
@@ -88,9 +93,15 @@ Task instructions using $ARGUMENTS placeholder`
       implementation: `# .claude/agents/specialist.md
 ---
 name: my-specialist
-description: Expert in specific domain
+description: Expert in specific domain. Use PROACTIVELY for complex analysis.
+tools: Read, Grep, Glob, Bash  # Optional - inherits all if omitted
 ---
-You are a specialist in...`
+
+You are a specialist in [domain]. Focus on:
+- Key expertise area 1
+- Key expertise area 2
+
+# Tip: Use /agents command for interactive setup`
     },
     'hook': {
       name: 'Hook',
@@ -99,20 +110,21 @@ You are a specialist in...`
       description: 'Automated scripts that run at specific lifecycle points',
       when: 'Ideal for enforcing rules and automated quality control',
       examples: [
-        { scenario: 'Auto-format on save', code: 'PostToolUse hook runs formatter' },
-        { scenario: 'Security blocking', code: 'PreToolUse prevents sensitive access' },
-        { scenario: 'Test on changes', code: 'PostToolUse triggers test suite' }
+        { scenario: 'Auto-format on save', code: 'PostToolUse triggers prettier after edits' },
+        { scenario: 'Security validation', code: 'PreToolUse checks permissions before execution' },
+        { scenario: 'Context enhancement', code: 'UserPromptSubmit adds project context' }
       ],
       implementation: `// .claude/settings.json
 {
   "hooks": {
-    "PostToolUse": [{
-      "matcher": "Edit",
-      "hooks": [{
-        "type": "command",
-        "command": "your-command-here"
-      }]
-    }]
+    "PostToolUse": [
+      "formatter-command",
+      { "command": "test-runner", "timeout": 5000 }
+    ],
+    "PreToolUse": ["security-check.sh"],
+    "UserPromptSubmit": ["add-context.py"],
+    "Stop": ["cleanup.sh"],
+    "SubagentStop": ["log-subagent.sh"]
   }
 }`
     },
@@ -127,12 +139,18 @@ You are a specialist in...`
         { scenario: 'API integration', code: 'Access Jira tickets directly' },
         { scenario: 'Tool automation', code: 'Control browser for testing' }
       ],
-      implementation: `// Configure MCP server in Claude Desktop settings
+      implementation: `// ~/Library/Application Support/Claude/claude_desktop_config.json
+// Windows: %APPDATA%\Claude\claude_desktop_config.json
 {
   "mcpServers": {
-    "my-integration": {
+    "filesystem": {
       "command": "npx",
-      "args": ["@your/mcp-server"]
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/project"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "your-token" }
     }
   }
 }`
@@ -154,9 +172,17 @@ You are a specialist in...`
 - Prefer functional components
 - Follow SOLID principles
 
+## Commands
+- \`pnpm dev\` - Start development
+- \`pnpm test\` - Run tests
+
 ## Architecture
-- Frontend: React + Zustand
-- Backend: Express + Prisma`
+- Frontend: React + Zustand  
+- Backend: Express + Prisma
+
+## External Docs
+@docs/api.md - API documentation
+@README.md - Project overview`
     },
     'settings': {
       name: 'Settings',
@@ -171,12 +197,19 @@ You are a specialist in...`
       ],
       implementation: `// .claude/settings.json
 {
-  "model": "claude-3-5-sonnet-latest",
-  "disallowedTools": ["WebSearch"],
-  "env": {
-    "API_KEY": "your-key-here"
+  "allowedTools": [
+    "bash_command",
+    "read_file",
+    "list_directory",
+    "search_grep"
+  ],
+  "ignorePatterns": ["node_modules/", "*.log", ".git/"],
+  "hooks": {
+    // Hook configuration here
   }
-}`
+}
+
+# Use /permissions command for interactive tool management`
     }
   };
 
