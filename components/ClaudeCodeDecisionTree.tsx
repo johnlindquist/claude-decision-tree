@@ -2,6 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, ChevronLeft, RefreshCw, Code, Zap, Brain, Link2, FileText, Settings, CheckCircle, Info, Copy, ExternalLink } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 const ClaudeCodeDecisionTree = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -298,24 +304,19 @@ You are a specialist in [domain]. Focus on:
   }, [answers, recommendation]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8 pt-8">
-          <h1 className="text-4xl font-bold text-gray-100 mb-2">Claude Code Decision Tree</h1>
-          <p className="text-lg text-gray-400">Find the right customization feature for your needs</p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Claude Code Decision Tree</h1>
+          <p className="text-lg text-muted-foreground">Find the right customization feature for your needs</p>
         </div>
 
         {/* Progress Bar */}
         {!recommendation && (
           <div className="mb-8">
-            <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-blue-500 transition-all duration-300"
-                style={{ width: `${((currentStep + 1) / questions.length) * 100}%` }}
-              />
-            </div>
-            <p className="text-sm text-gray-400 mt-2 text-center">
+            <Progress value={((currentStep + 1) / questions.length) * 100} className="h-2" />
+            <p className="text-sm text-muted-foreground mt-2 text-center">
               Step {currentStep + 1} of {questions.length}
             </p>
           </div>
@@ -323,85 +324,94 @@ You are a specialist in [domain]. Focus on:
 
         {/* Question Card */}
         {!recommendation ? (
-          <div className="bg-gray-800 rounded-xl shadow-lg p-8 animate-fadeIn">
-            <h2 className="text-2xl font-semibold mb-6">{questions[currentStep].question}</h2>
+          <Card className="animate-fadeIn">
+            <CardHeader>
+              <CardTitle>{questions[currentStep].question}</CardTitle>
+            </CardHeader>
+            <CardContent>
             
             <div className="space-y-3">
               {questions[currentStep].options.map((option) => {
                 const Icon = 'icon' in option ? option.icon : null;
                 return (
-                  <button
+                  <Button
                     key={option.value}
                     onClick={() => handleAnswer(questions[currentStep].id, option.value)}
-                    className="w-full text-left p-4 rounded-lg border-2 border-gray-600 hover:border-blue-500 hover:bg-gray-700 transition-all group"
+                    variant="outline"
+                    className="w-full justify-start h-auto p-4 hover:bg-accent"
                   >
                     <div className="flex items-start">
                       {Icon && (
-                        <Icon className="w-6 h-6 text-gray-500 group-hover:text-blue-400 mr-3 mt-0.5" />
+                        <Icon className="w-6 h-6 text-muted-foreground mr-3 mt-0.5" />
                       )}
                       <div>
-                        <div className="font-medium text-gray-100 group-hover:text-blue-400">
+                        <div className="font-medium text-foreground">
                           {option.label}
                         </div>
                         {option.description && (
-                          <div className="text-sm text-gray-400 mt-1">{option.description}</div>
+                          <div className="text-sm text-muted-foreground mt-1">{option.description}</div>
                         )}
                       </div>
                     </div>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
 
             {currentStep > 0 && (
-              <button
+              <Button
                 onClick={handleBack}
-                className="mt-6 flex items-center text-gray-400 hover:text-gray-200"
+                variant="ghost"
+                className="mt-6"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" />
                 Back
-              </button>
+              </Button>
             )}
-          </div>
+            </CardContent>
+          </Card>
         ) : (
           /* Recommendation Card */
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-gray-800 rounded-xl shadow-lg p-8">
-              <h2 className="text-2xl font-semibold mb-6 flex items-center">
-                <CheckCircle className="w-8 h-8 text-green-500 mr-3" />
-                Recommended Features
-              </h2>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <CheckCircle className="w-8 h-8 text-green-500 mr-3" />
+                  Recommended Features
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
               
               {recommendation.map((rec, index) => {
                 const feature = features[rec.feature as keyof typeof features];
                 const Icon = feature.icon;
                 
                 return (
-                  <div key={rec.feature} className={`${index > 0 ? 'mt-6 pt-6 border-t border-gray-700' : ''}`}>
+                  <div key={rec.feature} className={cn(index > 0 && 'mt-6 pt-6 border-t')}>
                     <div className="flex items-start">
-                      <div className={`${feature.color} p-3 rounded-lg`}>
+                      <div className={cn(feature.color, 'p-3 rounded-lg')}>
                         <Icon className="w-6 h-6 text-white" />
                       </div>
                       <div className="ml-4 flex-1">
                         <div className="flex items-center">
                           <h3 className="text-xl font-semibold">{feature.name}</h3>
-                          <span className="ml-3 px-3 py-1 bg-green-900/30 text-green-400 text-sm rounded-full">
+                          <Badge variant="secondary" className="ml-3">
                             {rec.confidence}% match
-                          </span>
+                          </Badge>
                         </div>
-                        <p className="text-gray-300 mt-1">{feature.description}</p>
-                        <p className="text-sm text-gray-400 mt-2">
+                        <p className="text-muted-foreground mt-1">{feature.description}</p>
+                        <p className="text-sm text-muted-foreground mt-2">
                           <strong>Why:</strong> {rec.reason}
                         </p>
                         
                         {/* Examples */}
                         <div className="mt-4">
-                          <h4 className="font-medium text-gray-200 mb-2">Common Use Cases:</h4>
+                          <h4 className="font-medium text-foreground mb-2">Common Use Cases:</h4>
                           <div className="space-y-2">
                             {feature.examples.map((example, i) => (
                               <div key={i} className="flex items-center text-sm">
-                                <div className="w-2 h-2 bg-gray-500 rounded-full mr-2" />
-                                <span className="text-gray-300">{example.scenario}</span>
+                                <div className="w-2 h-2 bg-muted-foreground rounded-full mr-2" />
+                                <span className="text-muted-foreground">{example.scenario}</span>
                               </div>
                             ))}
                           </div>
@@ -409,14 +419,16 @@ You are a specialist in [domain]. Focus on:
 
                         {/* Implementation */}
                         <div className="mt-4">
-                          <h4 className="font-medium text-gray-200 mb-2">Quick Start:</h4>
+                          <h4 className="font-medium text-foreground mb-2">Quick Start:</h4>
                           <div className="relative">
-                            <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
+                            <pre className="bg-muted text-foreground p-4 rounded-lg text-sm overflow-x-auto">
                               <code>{feature.implementation}</code>
                             </pre>
-                            <button
+                            <Button
                               onClick={() => copyToClipboard(feature.implementation, rec.feature)}
-                              className="absolute top-2 right-2 p-2 bg-gray-800 hover:bg-gray-700 rounded text-gray-300"
+                              variant="ghost"
+                              size="icon"
+                              className="absolute top-2 right-2"
                               title="Copy to clipboard"
                             >
                               {copiedCode === rec.feature ? (
@@ -424,7 +436,7 @@ You are a specialist in [domain]. Focus on:
                               ) : (
                                 <Copy className="w-4 h-4" />
                               )}
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -432,15 +444,15 @@ You are a specialist in [domain]. Focus on:
                   </div>
                 );
               })}
-            </div>
+              </CardContent>
+            </Card>
 
             {/* Additional Resources */}
-            <div className="bg-blue-900/20 rounded-xl p-6">
-              <h3 className="font-semibold text-blue-300 mb-3 flex items-center">
-                <Info className="w-5 h-5 mr-2" />
-                Next Steps
-              </h3>
-              <ul className="space-y-2 text-blue-200">
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertTitle>Next Steps</AlertTitle>
+              <AlertDescription>
+                <ul className="space-y-2 mt-2">
                 <li className="flex items-start">
                   <span className="mr-2">•</span>
                   <span>Create the appropriate configuration files in your project</span>
@@ -461,21 +473,24 @@ You are a specialist in [domain]. Focus on:
                   <span className="mr-2">•</span>
                   <span>Explore built-in commands: /agents, /permissions, /vim, /status</span>
                 </li>
-              </ul>
-            </div>
+                </ul>
+              </AlertDescription>
+            </Alert>
 
-            <button
+            <Button
               onClick={handleRestart}
-              className="w-full py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center justify-center"
+              variant="secondary"
+              className="w-full"
+              size="lg"
             >
               <RefreshCw className="w-5 h-5 mr-2" />
               Start Over
-            </button>
+            </Button>
           </div>
         )}
 
         {/* Footer */}
-        <div className="mt-12 text-center text-sm text-gray-400">
+        <div className="mt-12 text-center text-sm text-muted-foreground">
           <p>Based on Claude Code documentation and best practices</p>
         </div>
       </div>
