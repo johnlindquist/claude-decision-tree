@@ -307,7 +307,7 @@ You are a specialist in [domain]. Focus on:
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8 pt-8">
+        <div className="text-center mb-8 pt-4">
           <h1 className="text-4xl font-bold text-foreground mb-2">Claude Code Decision Tree</h1>
           <p className="text-lg text-muted-foreground">Find the right customization feature for your needs</p>
         </div>
