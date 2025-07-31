@@ -30,16 +30,6 @@ const ClaudeCodeDecisionTree = () => {
       ]
     },
     {
-      id: 'frequency',
-      question: 'How often will this be used?',
-      options: [
-        { value: 'multiple-daily', label: 'Multiple times per day', description: 'Core part of your workflow' },
-        { value: 'daily', label: 'Daily', description: 'Regular but not constant' },
-        { value: 'weekly', label: 'Weekly or less', description: 'Occasional use' },
-        { value: 'always', label: 'Always active', description: 'Continuous background operation' }
-      ] as const
-    },
-    {
       id: 'complexity',
       question: 'How complex is the logic?',
       options: [
@@ -223,7 +213,6 @@ You are a specialist in [domain]. Focus on:
 
   const getRecommendation = () => {
     const taskType = answers.find(a => a.questionId === 'task-type')?.value;
-    const frequency = answers.find(a => a.questionId === 'frequency')?.value;
     const complexity = answers.find(a => a.questionId === 'complexity')?.value;
     const trigger = answers.find(a => a.questionId === 'trigger')?.value;
 
@@ -251,10 +240,6 @@ You are a specialist in [domain]. Focus on:
 
     if (trigger === 'automatic' && !recommendations.find(r => r.feature === 'hook')) {
       recommendations.push({ feature: 'hook', confidence: 85, reason: 'Hooks provide automatic triggering' });
-    }
-
-    if (frequency === 'always' && !recommendations.find(r => r.feature === 'claude-md')) {
-      recommendations.push({ feature: 'claude-md', confidence: 70, reason: 'Always-active context awareness' });
     }
 
     // Sort by confidence
