@@ -344,8 +344,8 @@ You are a specialist in [domain]. Focus on:
                       {Icon && (
                         <Icon className="w-6 h-6 text-muted-foreground mr-3 mt-0.5" />
                       )}
-                      <div>
-                        <div className="font-medium text-foreground">
+                      <div className="text-left">
+                        <div className="font-medium">
                           {option.label}
                         </div>
                         {option.description && (
